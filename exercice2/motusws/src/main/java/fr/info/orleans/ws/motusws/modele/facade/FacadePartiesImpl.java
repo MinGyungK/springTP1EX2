@@ -25,19 +25,18 @@ public class FacadePartiesImpl implements FacadeParties {
     private static long IDs = 0;
 
     @Override
-    public String nouvellePartie(String pseudo)  {
-        Partie nouvellePartie = new Partie(IDs,Dico.getInstance(Dico.DEFAULT_FILENAME));
-        this.parties.put(nouvellePartie.getIdentifiant(),nouvellePartie);
+    public String nouvellePartie(String pseudo) {
+        Partie nouvellePartie = new Partie(IDs, Dico.getInstance(Dico.DEFAULT_FILENAME));
+        this.parties.put(nouvellePartie.getIdentifiant(), nouvellePartie);
         if (partiesParJoueur.containsKey(pseudo)) {
             this.partiesParJoueur.get(pseudo).add(nouvellePartie);
-        }
-        else {
+        } else {
             Collection<Partie> lesParties = new ArrayList<>();
             lesParties.add(nouvellePartie);
-            this.partiesParJoueur.put(pseudo,lesParties);
+            this.partiesParJoueur.put(pseudo, lesParties);
         }
 
-        TicketPartie ticketPartie = new TicketPartie(pseudo,nouvellePartie.getIdentifiant());
+        TicketPartie ticketPartie = new TicketPartie(pseudo, nouvellePartie.getIdentifiant());
         IDs++;
         return ticketChiffrement.chiffrement(ticketPartie);
     }
@@ -45,11 +44,17 @@ public class FacadePartiesImpl implements FacadeParties {
     @Override
     public EtatPartie jouer(String ticketChiffre, String mot) throws MotInexistantException, MaxNbCoupsException, TicketInvalideException {
         TicketPartie ticketPartie = ticketChiffrement.dechiffrement(ticketChiffre);
-        return parties.get(ticketPartie.getIdPartie()).jouer(mot);
+        return getPartie(ticketPartie).jouer(mot);
     }
 
-    public Collection<String> getListeDicos(){
-        return Arrays.asList("dico7lettres","dicosimple7lettres");
+    private Partie getPartie(TicketPartie ticketPartie) throws TicketInvalideException {
+        Partie partie = parties.get(ticketPartie.getIdPartie());
+        if (partie == null) throw new TicketInvalideException();
+        return partie;
+    }
+
+    public Collection<String> getListeDicos() {
+        return Arrays.asList("dico7lettres", "dicosimple7lettres");
     }
 
     @Override
@@ -57,9 +62,8 @@ public class FacadePartiesImpl implements FacadeParties {
             PartieInexistanteException {
         TicketPartie ticketPartie = ticketChiffrement.dechiffrement(ticket);
         if (parties.containsKey(ticketPartie.getIdPartie())) {
-            return parties.get(ticketPartie.getIdPartie()).getEssais();
-        }
-        else {
+            return getPartie(ticketPartie).getEssais();
+        } else {
             throw new PartieInexistanteException();
         }
     }
@@ -69,9 +73,8 @@ public class FacadePartiesImpl implements FacadeParties {
     public int getNbEssais(String ticket) throws TicketInvalideException, PartieInexistanteException {
         TicketPartie ticketPartie = ticketChiffrement.dechiffrement(ticket);
         if (parties.containsKey(ticketPartie.getIdPartie())) {
-            return parties.get(ticketPartie.getIdPartie()).getNbEssais();
-        }
-        else {
+            return getPartie(ticketPartie).getNbEssais();
+        } else {
             throw new PartieInexistanteException();
         }
     }
@@ -79,7 +82,7 @@ public class FacadePartiesImpl implements FacadeParties {
     @Override
     public void clorePartie(String ticket) throws TicketInvalideException {
         TicketPartie ticketPartie = ticketChiffrement.dechiffrement(ticket);
-        Partie p = parties.get(ticketPartie.getIdPartie());
+        Partie p = getPartie(ticketPartie);
         partiesParJoueur.get(ticketPartie.getJoueurCreateur()).remove(p);
         parties.remove(p.getIdentifiant());
     }
