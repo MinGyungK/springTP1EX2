@@ -19,6 +19,8 @@ public class MotusProxyImpl implements MotusProxy{
     private final String SERVICE_URL = "http://localhost:8080/motus";
     private final String POST_JOUEUR_ENDPOINT = "/joueur";
 
+    private final String POST_PARTIE_ENDPOINT = "/partie";
+
     @Override
     public String creerUnCompte(String pseudo) throws PseudoDejaPrisException {
         HttpRequest request = HttpRequest.newBuilder()
@@ -40,7 +42,23 @@ public class MotusProxyImpl implements MotusProxy{
 
     @Override
     public String creerUnePartie(String tokenAuthentification) {
-        return null;
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(SERVICE_URL+POST_PARTIE_ENDPOINT))
+                .setHeader("Content-Type","application/json")
+                .setHeader("Token",tokenAuthentification)
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+        try {
+            HttpResponse<String> response = httpClient.send(request,HttpResponse.BodyHandlers.ofString());
+            switch (response.statusCode()){
+                case 201: return response.headers().map().get("tokenPartie").toString();
+                case 401: return "Joueur pas valide";
+                default: return "KO";
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override

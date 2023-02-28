@@ -1,0 +1,7 @@
+| URI | Fonctionnalité | Méthode | Entête | Paramètres de la requête | Réponse |
+|-----|---------------|---------|---------|--------------------------|---------|
+| /motus/joueur | Inscription d'un joueur | POST |  | pseudo (RequestParam) | 201 CREATED avec header "token" (ticket d'identité du joueur) <br> 409 CONFLICT si le pseudo est déjà pris <br> 400 Bad Request en cas d'erreur |
+| /motus/partie | Création d'une partie | POST | token (RequestHeader) |  | 201 CREATED avec header "tokenPartie" (ticket de la partie) <br> 400 Bad Request si le ticket d'identité est invalide <br> 401 UNAUTHORIZED si le joueur n'est pas valide |
+| /motus/partie | Jouer à une partie | PUT | tokenPartie (RequestHeader) | proposition (RequestParam) | 200 OK avec état de la partie <br> 400 Bad Request si le ticket de la partie est invalide <br> 404 NOT FOUND si le mot n'existe pas <br> 406 NOT ACCEPTABLE si le nombre maximum de coups est atteint |
+| /motus/partie | Obtenir les mots joués | GET | tokenPartie (RequestHeader) |  | 200 OK avec liste des mots joués <br> 400 Bad Request si le ticket de la partie est invalide <br> 404 NOT FOUND si la partie n'existe pas |
+| /motus/partie/nbcoups | Obtenir le nombre de coups | GET | tokenPartie (RequestHeader) |  | 200 OK avec nombre de coups joués <br> 400 Bad Request si le ticket de la partie est invalide <br> 404 NOT FOUND si la partie n'existe pas |
