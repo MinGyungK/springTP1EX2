@@ -30,7 +30,7 @@ public class MotusProxyImpl implements MotusProxy{
         try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             switch (response.statusCode()){
-                case 201: return response.headers().map().get("token").toString();
+                case 201: return response.headers().map().get("token").get(0);
                 case 409: throw new PseudoDejaPrisException();
                 default: return "KO";
             }
@@ -51,7 +51,7 @@ public class MotusProxyImpl implements MotusProxy{
         try {
             HttpResponse<String> response = httpClient.send(request,HttpResponse.BodyHandlers.ofString());
             switch (response.statusCode()){
-                case 201: return response.headers().map().get("tokenPartie").toString();
+                case 201: return response.headers().map().get("tokenPartie").get(0);
                 case 401: return "Joueur pas valide";
                 default: return "KO";
             }
